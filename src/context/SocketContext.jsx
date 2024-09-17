@@ -11,13 +11,9 @@ import { v4 as UUIDv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import { peerReducer } from "../reducers/peerReducers";
 import { addPeerAction, removePeerAction } from "../actions/peerAction";
-const WS_Server = "https://chatapp-backend-three-iota.vercel.app/";
+const WS_Server = "http://localhost:5500";
 const SocketContext = createContext(null);
-const socket = SocketIoClient("https://chatapp-backend-three-iota.vercel.app", {
-  transports: ["websocket"], // Use websocket for better performance
-  withCredentials: true, // Include credentials if needed
-});
-
+const socket = SocketIoClient(WS_Server);
 export const SocketProvider = ({ children }) => {
   const [user, setUser] = useState("");
   const [stream, setStream] = useState("");
@@ -41,59 +37,37 @@ export const SocketProvider = ({ children }) => {
     });
     setUser(newPeer);
     fetchUserFeed();
-
-    const handleRoomCreate = ({ roomId }) => {
+    socket.on("room-create", ({ roomId }) => {
       console.log("Room created: ", { roomId });
       navigate(`/room/${roomId}`);
-    };
-
-    const handleGetUsers = ({ roomId, participants }) => {
+    });
+    socket.on("get-users", ({ roomId, participants }) => {
       console.log("Participants: ", { roomId, participants });
-    };
-
-    socket.on("room-create", handleRoomCreate);
-    socket.on("get-users", handleGetUsers);
-
-    return () => {
-      socket.off("room-create", handleRoomCreate);
-      socket.off("get-users", handleGetUsers);
-    };
-  }, [navigate, socket]);
-
+    });
+  }, []);
   useEffect(() => {
     if (!user || !stream) return;
-
-    const handleUserJoined = ({ peerId }) => {
+    socket.on("user-joined", ({ peerId }) => {
       const call = user.call(peerId, stream);
       console.log("Calling the new peer", peerId);
       call.on("stream", () => {
         dispatch(addPeerAction(peerId, stream));
       });
-    };
+    });
 
-    const handleCall = (call) => {
-      console.log("Receiving a call");
+    user.on("call", (call) => {
+      console.log("receiving a call");
       call.answer(stream);
       call.on("stream", () => {
         dispatch(addPeerAction(call.peer, stream));
       });
-    };
-
-    socket.on("user-joined", handleUserJoined);
-    user.on("call", handleCall);
+    });
 
     socket.emit("ready");
-
-    return () => {
-      socket.off("user-joined", handleUserJoined);
-      user.off("call", handleCall);
-    };
-  }, [user, stream, socket]);
-
+  }, [user, stream]);
   const handleRemove = (id) => {
     dispatch(removePeerAction(id));
   };
-
   return (
     <SocketContext.Provider
       value={{ socket, user, stream, peers, handleRemove }}
