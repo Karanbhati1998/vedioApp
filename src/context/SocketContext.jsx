@@ -31,10 +31,11 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     const userId = UUIDv4();
     const newPeer = new Peer(userId, {
-      host: "localhost",
-      port: 9000,
-      path: "/myapp",
+      secure: true,
+      host: "0.peerjs.com",
+      port: "443",
     });
+
     setUser(newPeer);
     fetchUserFeed();
     socket.on("room-create", ({ roomId }) => {

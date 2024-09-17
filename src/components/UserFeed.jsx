@@ -18,8 +18,8 @@ const UserFeed = ({ stream, peerId, handleRemove }) => {
       <video
         ref={videoRef}
         style={{
-          width: "100px",
-          height: "100px",
+          width: "10px",
+          height: "10px",
           objectFit: "cover",
           border: "1px solid",
         }}
