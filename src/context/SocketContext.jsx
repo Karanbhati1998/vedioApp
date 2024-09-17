@@ -13,7 +13,11 @@ import { peerReducer } from "../reducers/peerReducers";
 import { addPeerAction, removePeerAction } from "../actions/peerAction";
 const WS_Server = "https://chatapp-backend-three-iota.vercel.app/";
 const SocketContext = createContext(null);
-const socket = SocketIoClient(WS_Server);
+const socket = SocketIoClient("https://chatapp-backend-three-iota.vercel.app", {
+  transports: ["websocket"], // Use websocket for better performance
+  withCredentials: true, // Include credentials if needed
+});
+
 export const SocketProvider = ({ children }) => {
   const [user, setUser] = useState("");
   const [stream, setStream] = useState("");
