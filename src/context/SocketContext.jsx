@@ -37,37 +37,59 @@ export const SocketProvider = ({ children }) => {
     });
     setUser(newPeer);
     fetchUserFeed();
-    socket.on("room-create", ({ roomId }) => {
+
+    const handleRoomCreate = ({ roomId }) => {
       console.log("Room created: ", { roomId });
       navigate(`/room/${roomId}`);
-    });
-    socket.on("get-users", ({ roomId, participants }) => {
+    };
+
+    const handleGetUsers = ({ roomId, participants }) => {
       console.log("Participants: ", { roomId, participants });
-    });
-  }, []);
+    };
+
+    socket.on("room-create", handleRoomCreate);
+    socket.on("get-users", handleGetUsers);
+
+    return () => {
+      socket.off("room-create", handleRoomCreate);
+      socket.off("get-users", handleGetUsers);
+    };
+  }, [navigate, socket]);
+
   useEffect(() => {
     if (!user || !stream) return;
-    socket.on("user-joined", ({ peerId }) => {
+
+    const handleUserJoined = ({ peerId }) => {
       const call = user.call(peerId, stream);
       console.log("Calling the new peer", peerId);
       call.on("stream", () => {
         dispatch(addPeerAction(peerId, stream));
       });
-    });
+    };
 
-    user.on("call", (call) => {
-      console.log("receiving a call");
+    const handleCall = (call) => {
+      console.log("Receiving a call");
       call.answer(stream);
       call.on("stream", () => {
         dispatch(addPeerAction(call.peer, stream));
       });
-    });
+    };
+
+    socket.on("user-joined", handleUserJoined);
+    user.on("call", handleCall);
 
     socket.emit("ready");
-  }, [user, stream]);
+
+    return () => {
+      socket.off("user-joined", handleUserJoined);
+      user.off("call", handleCall);
+    };
+  }, [user, stream, socket]);
+
   const handleRemove = (id) => {
     dispatch(removePeerAction(id));
   };
+
   return (
     <SocketContext.Provider
       value={{ socket, user, stream, peers, handleRemove }}
