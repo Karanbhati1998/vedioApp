@@ -13,7 +13,11 @@ import { peerReducer } from "../reducers/peerReducers";
 import { addPeerAction, removePeerAction } from "../actions/peerAction";
 const WS_Server = "http://localhost:5500";
 const SocketContext = createContext(null);
-const socket = SocketIoClient(WS_Server);
+const socket = SocketIoClient("http://localhost:5500", {
+  transports: ["websocket"], // Use WebSocket as the transport method
+  withCredentials: true, // Include credentials if needed
+});
+
 export const SocketProvider = ({ children }) => {
   const [user, setUser] = useState("");
   const [stream, setStream] = useState("");
