@@ -11,15 +11,12 @@ import { v4 as UUIDv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import { peerReducer } from "../reducers/peerReducers";
 import { addPeerAction, removePeerAction } from "../actions/peerAction";
-const WS_Server = "https://chatapp-backend-three-iota.vercel.app/";
+const WS_Server = "http://localhost:5500";
 const SocketContext = createContext(null);
-const socket = SocketIoClient(
-  "https://chatapp-backend-three-iota.vercel.app/",
-  {
-    transports: ["websocket"],
-    withCredentials: true,
-  }
-);
+const socket = SocketIoClient("http://localhost:5500", {
+  transports: ["websocket"],
+  withCredentials: true,
+});
 
 export const SocketProvider = ({ children }) => {
   const [user, setUser] = useState("");
