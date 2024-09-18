@@ -13,10 +13,7 @@ import { peerReducer } from "../reducers/peerReducers";
 import { addPeerAction, removePeerAction } from "../actions/peerAction";
 const WS_Server = "http://localhost:5500";
 const SocketContext = createContext(null);
-const socket = SocketIoClient("http://localhost:5500", {
-  transports: ["websocket"],
-  withCredentials: true,
-});
+const socket = SocketIoClient(WS_Server);
 
 export const SocketProvider = ({ children }) => {
   const [user, setUser] = useState("");
@@ -38,6 +35,18 @@ export const SocketProvider = ({ children }) => {
       secure: true,
       host: "0.peerjs.com",
       port: "443",
+      config: {
+        iceServers: [
+          {
+            urls: "stun:stun.l.google.com:19302", // Google STUN server
+          },
+          {
+            urls: "turn:your-turn-server.com", // Apna TURN server
+            username: "username", // TURN server username
+            credential: "password", // TURN server password
+          },
+        ],
+      },
     });
     setUser(newPeer);
     fetchUserFeed();
