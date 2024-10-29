@@ -33,3 +33,5 @@ protocol:for setup a connection there are some rules to connect
 SDP packet contain the following packet:-
 1 information of desc multimedia content
 2 format of multimedia
+
+for SDP handShake we need a signalling server after the SDP handShake then both user communicate directly after the handshake the no need to signalling server
