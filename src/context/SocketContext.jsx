@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { peerReducer } from "../reducers/peerReducers";
 import { addPeerAction, removePeerAction } from "../actions/peerAction";
 // const WS_Server = "http://localhost:5500";
-const WS_Server = "http://65.1.93.166:5500/";
+const WS_Server = "https://65.1.93.166:5500/";
 const SocketContext = createContext(null);
 const socket = SocketIoClient(WS_Server);
 
